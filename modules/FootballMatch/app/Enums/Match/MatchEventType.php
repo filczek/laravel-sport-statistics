@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Modules\FootballMatch\Enums\Match;
 
-use Modules\FootballMatch\Enums\MatchEvents\Goal\GoalType;
 use Modules\FootballMatch\Models\MatchEvents\GoalEvent;
 use Modules\FootballMatch\Models\MatchEvents\RedCard;
+use Modules\FootballMatch\Models\MatchEvents\Substitution;
 use Modules\FootballMatch\Models\MatchEvents\YellowCard;
 
 enum MatchEventType: string
@@ -15,7 +15,7 @@ enum MatchEventType: string
 
 //    case Corner = "corner"; // ???????
     case Goal = "goal"; // primary actor = scorer ; includes new score
-//    case Substitution = "substitution"; // primary actor = in ; secondary actor = out
+    case Substitution = "substitution";
     case YellowCard = "yellow_card";
     case RedCard = "red_card";
 //    case InjuryTimer = "injury_time";   // TODO injury time minutes added
@@ -34,6 +34,7 @@ enum MatchEventType: string
     {
         return match ($this) {
             self::Goal => GoalEvent::class,
+            self::Substitution => Substitution::class,
             self::YellowCard => YellowCard::class,
             self::RedCard => RedCard::class,
         };

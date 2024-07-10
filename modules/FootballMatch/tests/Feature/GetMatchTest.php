@@ -1,11 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\FootballMatch\Builders\MatchBuilder;
 use Modules\FootballMatch\Models\FootballMatch;
 
-uses(RefreshDatabase::class);
 uses(MakesHttpRequests::class);
 
 it('gets a match', function () {
@@ -14,8 +12,8 @@ it('gets a match', function () {
 
     // When
     $actual = $this
-        ->get(route('get-match', ['match' => $match]))
-        ->assertStatus(200);
+        ->getJson(route('get-match', ['match' => $match]))
+        ->assertSuccessful();
 
     // Then
     /** @var FootballMatch $original */

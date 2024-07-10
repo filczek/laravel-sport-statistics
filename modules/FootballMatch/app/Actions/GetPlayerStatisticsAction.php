@@ -7,56 +7,63 @@ namespace Modules\FootballMatch\Actions;
 use Closure;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Pipeline\Pipeline;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Modules\FootballMatch\Collections\PlayerStatisticsCollection;
+use Modules\FootballMatch\DataTransferObjects\GetPlayerStatisticsDto;
+use Modules\FootballMatch\DataTransferObjects\PlayerStatisticsDto;
 use Modules\FootballMatch\Filters\PlayerStatisticsOfMatchFilter\FilterType;
-use Modules\FootballMatch\Models\Player;
 
 final class GetPlayerStatisticsAction
 {
-    public static function execute(QueryBuilder $player_statistics, array $payload)
+    // TODO: Refine the type of $player_statistics from QueryBuilder to a more specific type
+    // that accurately represents the expected input, such as PlayerStatisticsQueryBuilder
+    // or a custom interface like PlayerStatisticsQueryInterface. This will improve type safety and code clarity.
+    //
+    // Maybe modifying the PlayerStatisticsQueryBuilder will do the job.
+    public static function execute(QueryBuilder $player_statistics, GetPlayerStatisticsDto $data): PlayerStatisticsCollection
     {
+        /** @var Collection $statistics */
         $statistics = app(Pipeline::class)
             ->send($player_statistics)
             ->through([
-                ...self::filters($payload),
-                ...self::sorters($payload),
+                ...self::filters($data),
+                ...self::sorters($data),
             ])
             ->thenReturn()
             ->get();
 
-        $players = Player::whereIn('id', $statistics->pluck('player_id'))
-            ->get();
+        // TODO should it include Player model like previously?
 
-        // TODO create PlayerStatisticsResource
-        return $statistics
-            ->map(fn ($statistics) => [
-                'player' => $players->find($statistics->player_id),
-                'stats' => $statistics
-            ]);
+        return new PlayerStatisticsCollection(
+            $statistics
+                ->transform(fn ($statistics) => PlayerStatisticsDto::fromArray((array) $statistics))
+                ->toBase()
+                ->all()
+        );
     }
 
-    private static function filters(array $payload): array
+    private static function filters(GetPlayerStatisticsDto $data): array
     {
-        return collect($payload)
+        return collect($data)
             ->filter(fn ($value, string $key) => FilterType::tryFrom($key))
-            ->map(fn ($value, string $key) => FilterType::from($key)->createFilter($payload))
+            ->map(fn ($value, string $key) => FilterType::from($key)->createFilter($data))
             ->values()
             ->all();
     }
 
-    private static function sorters(array $payload): array
+    private static function sorters(GetPlayerStatisticsDto $data): array
     {
         // TODO move to Sorter class
-        $x = new class($payload) {
+        $x = new class($data) {
             public function __construct(
-                private array $payload
+                private GetPlayerStatisticsDto $payload
             ) {
             }
 
             public function handle(QueryBuilder $builder, Closure $next): QueryBuilder
             {
-                $sort_by = Arr::get($this->payload, 'sort_by');
-                $sort_direction = Arr::get($this->payload, 'sort_dir', 'desc');
+                $sort_by = $this->payload->sort_by;
+                $sort_direction = $this->payload->sort_dir ?? "desc";
 
                 if ($sort_by) {
                     $builder->orderBy($sort_by, $sort_direction);

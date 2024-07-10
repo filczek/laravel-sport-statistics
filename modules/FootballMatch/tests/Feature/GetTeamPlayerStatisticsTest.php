@@ -1,13 +1,10 @@
 <?php
 
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use Modules\FootballMatch\Builders\MatchBuilder;
-use Modules\FootballMatch\Models\FootballMatch;
+use Modules\FootballMatch\DataTransferObjects\PlayerStatisticsDto;
 use Modules\FootballMatch\Models\Team;
 
-uses(RefreshDatabase::class);
 uses(MakesHttpRequests::class);
 
 it('gets team player statistics', function () {
@@ -30,28 +27,27 @@ it('gets team player statistics', function () {
 
     // When
     $goals_total = $this
-        ->get(route('get-player-statistics-of-team', ['team' => $home_team, 'sort_by' => 'goals_total', 'sort_dir' => 'desc']))
-        ->assertStatus(200);
+        ->getJson(route('get-player-statistics-of-team', ['team' => $home_team, 'sort_by' => 'goals_total', 'sort_dir' => 'desc']))
+        ->assertSuccessful();
 
     $most_yellow_cards = $this
-        ->get(route('get-player-statistics-of-team', ['team' => $home_team, 'sort_by' => 'yellow_cards', 'sort_dir' => 'desc']))
-        ->assertStatus(200);
+        ->getJson(route('get-player-statistics-of-team', ['team' => $home_team, 'sort_by' => 'yellow_cards', 'sort_dir' => 'desc']))
+        ->assertSuccessful();
 
     $most_red_cards = $this
-        ->get(route('get-player-statistics-of-team', ['team' => $away_team, 'sort_by' => 'red_cards', 'sort_dir' => 'desc']))
-        ->assertStatus(200);
+        ->getJson(route('get-player-statistics-of-team', ['team' => $away_team, 'sort_by' => 'red_cards', 'sort_dir' => 'desc']))
+        ->assertSuccessful();
 
     // Then
-    /** @var Collection $original */
-    $player_with_most_goals = $goals_total->original->first();
-    expect($player_with_most_goals['player']->id)->toBe($home_team_player->id);
-    expect($player_with_most_goals['stats']->goals_total)->toBe(3);
+    $player_with_most_goals = PlayerStatisticsDto::fromArray($goals_total->json(0));
+    expect($player_with_most_goals->player_id)->toBe($home_team_player->id);
+    expect($player_with_most_goals->goals_total)->toBe(3);
 
-    $player_with_most_yellow_cards = $most_yellow_cards->original->first();
-    expect($player_with_most_yellow_cards['player']->id)->toBe($home_team_player->id);
-    expect($player_with_most_yellow_cards['stats']->yellow_cards)->toBe(1);
+    $player_with_most_yellow_cards = PlayerStatisticsDto::fromArray($most_yellow_cards->json(0));
+    expect($player_with_most_yellow_cards->player_id)->toBe($home_team_player->id);
+    expect($player_with_most_yellow_cards->yellow_cards)->toBe(1);
 
-    $player_with_most_red_cards = $most_red_cards->original->first();
-    expect($player_with_most_red_cards['player']->id)->toBe($away_team_player->id);
-    expect($player_with_most_red_cards['stats']->red_cards)->toBe(1);
+    $player_with_most_red_cards = PlayerStatisticsDto::fromArray($most_red_cards->json(0));
+    expect($player_with_most_red_cards->player_id)->toBe($away_team_player->id);
+    expect($player_with_most_red_cards->red_cards)->toBe(1);
 });

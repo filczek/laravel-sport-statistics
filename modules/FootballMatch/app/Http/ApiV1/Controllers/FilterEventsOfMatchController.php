@@ -1,20 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\FootballMatch\Http\ApiV1\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\FootballMatch\Actions\FilterMatchEventsAction;
+use Modules\FootballMatch\DataTransferObjects\MatchEventFilter\MatchEventFilterDto;
+use Modules\FootballMatch\Models\FootballMatch;
 
-class FilterEventsOfMatchController extends Controller
+final class FilterEventsOfMatchController extends Controller
 {
-    public function __invoke(string $id, Request $request)
+    public function __invoke(FootballMatch $match, Request $request)
     {
-        $payload = [
-            'match_id' => $id,
-            ...$request->all(),
-        ];
+        $filter = MatchEventFilterDto::fromArray(['match_id' => $match->id, ...$request->all()]);
 
-        return FilterMatchEventsAction::execute($payload);
+        // TODO add resource
+        return FilterMatchEventsAction::execute($filter);
     }
 }

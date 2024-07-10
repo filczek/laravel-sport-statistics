@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\FootballMatch\Http\ApiV1\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\FootballMatch\Models\FootballMatch;
 
-class PlayerOfTheGameController extends Controller
+final class PlayerOfTheGameController extends Controller
 {
     public function __invoke(FootballMatch $match)
     {
@@ -20,6 +22,7 @@ class PlayerOfTheGameController extends Controller
 
         $player = $player->player;
 
+        // TODO add resource
         return $player;
     }
 }

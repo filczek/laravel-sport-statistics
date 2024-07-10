@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Modules\FootballMatch\Filters\PlayerStatisticsOfMatchFilter;
 
 use Closure;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Arr;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 final class LimitFilter extends Filter
 {
-    public function handle(Builder $query, Closure $next): Builder
+    public function handle(QueryBuilder $query, Closure $next): QueryBuilder
     {
-        $limit = Arr::get($this->payload, 'limit');
+        $limit = $this->payload->limit;
 
         if (null !== $limit) {
             $query->limit($limit);

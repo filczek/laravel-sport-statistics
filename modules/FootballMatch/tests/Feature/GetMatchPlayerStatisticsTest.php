@@ -1,13 +1,10 @@
 <?php
 
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use Modules\FootballMatch\Builders\MatchBuilder;
-use Modules\FootballMatch\Models\FootballMatch;
+use Modules\FootballMatch\DataTransferObjects\PlayerStatisticsDto;
 use Modules\FootballMatch\Models\Team;
 
-uses(RefreshDatabase::class);
 uses(MakesHttpRequests::class);
 
 it('gets match player statistics', function () {
@@ -24,14 +21,12 @@ it('gets match player statistics', function () {
 
     // When
     $actual = $this
-        ->get(route('get-statistics-of-match', ['match' => $match, 'sort_by' => 'goals_total', 'sort_dir' => 'desc']))
-        ->assertStatus(200);
+        ->getJson(route('get-statistics-of-match', ['match' => $match, 'sort_by' => 'goals_total', 'sort_dir' => 'desc']))
+        ->assertSuccessful();
 
     // Then
-    /** @var Collection $original */
-    $original = $actual->original;
-    $first = $original->first();
+    $statistics = PlayerStatisticsDto::fromArray($actual->json(0));
 
-    expect($first['player']->id)->toBe($player->id);
-    expect($first['stats']->goals_total)->toBe(3);
+    expect($statistics->player_id)->toBe($player->id);
+    expect($statistics->goals_total)->toBe(3);
 });

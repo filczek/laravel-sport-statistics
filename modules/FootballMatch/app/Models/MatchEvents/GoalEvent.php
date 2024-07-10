@@ -2,14 +2,14 @@
 
 namespace Modules\FootballMatch\Models\MatchEvents;
 
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Support\Arr;
 use Modules\FootballMatch\database\factories\MatchEvents\GoalEventFactory;
+use Modules\FootballMatch\DataTransferObjects\MatchEventFilter\GoalEventFilterDto;
 use Modules\FootballMatch\Enums\MatchEvents\Goal\BodyPartType;
 use Modules\FootballMatch\Enums\MatchEvents\Goal\GoalType;
 use Modules\FootballMatch\Models\MatchEvent;
@@ -42,22 +42,22 @@ class GoalEvent extends Model
         ];
     }
 
-    public function scopeFilter(Builder $query, array $filter = []): Builder
+    public function scopeFilter(EloquentBuilder $query, GoalEventFilterDto $filter): EloquentBuilder
     {
-        if (isset($filter['team_id'])) {
-            $query->whereIn('team_id', Arr::wrap($filter['team_id']));
+        if (false === empty($filter->team_id)) {
+            $query->whereIn('team_id', $filter->team_id);
         }
 
-        if (isset($filter['player_id'])) {
-            $query->whereIn('player_id', Arr::wrap($filter['player_id']));
+        if (false === empty($filter->player_id)) {
+            $query->whereIn('player_id', $filter->player_id);
         }
 
-        if (isset($filter['goal_type'])) {
-            $query->whereIn('goal_type', Arr::wrap($filter['goal_type']));
+        if (false === empty($filter->goal_type)) {
+            $query->whereIn('goal_type', $filter->goal_type);
         }
 
-        if (isset($filter['body_part'])) {
-            $query->whereIn('body_part', Arr::wrap($filter['body_part']));
+        if (false === empty($filter->body_part)) {
+            $query->whereIn('body_part', $filter->body_part);
         }
 
         return $query;

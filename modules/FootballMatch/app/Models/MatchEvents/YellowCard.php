@@ -2,14 +2,14 @@
 
 namespace Modules\FootballMatch\Models\MatchEvents;
 
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Support\Arr;
 use Modules\FootballMatch\database\factories\MatchEvents\YellowCardFactory;
+use Modules\FootballMatch\DataTransferObjects\MatchEventFilter\YellowCardEventFilterDto;
 use Modules\FootballMatch\Models\MatchEvent;
 use Modules\FootballMatch\Models\Player;
 
@@ -29,10 +29,10 @@ class YellowCard extends Model
         return YellowCardFactory::new();
     }
 
-    public function scopeFilter(Builder $query, array $filter): Builder
+    public function scopeFilter(EloquentBuilder $query, YellowCardEventFilterDto $filter): EloquentBuilder
     {
-        if (isset($filter['player_id'])) {
-            $query->whereIn('player_id', Arr::wrap(['player_id']));
+        if (false === empty($filter->player_id)) {
+            $query->whereIn('player_id', $filter->player_id);
         }
 
         return $query;

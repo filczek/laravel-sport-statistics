@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlayerOfTheMatch extends Model
 {
-    use HasUuids, HasUuids, HasUuids, HasFactory;
+    use HasUuids, HasFactory;
 
     protected $fillable = [
         'match_id',

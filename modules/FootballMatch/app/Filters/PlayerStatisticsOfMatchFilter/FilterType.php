@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Modules\FootballMatch\Filters\PlayerStatisticsOfMatchFilter;
 
+use Modules\FootballMatch\DataTransferObjects\GetPlayerStatisticsDto;
+
 enum FilterType: string
 {
     case PlayerId = "player_id";
@@ -13,14 +15,14 @@ enum FilterType: string
     case Limit = "limit";
     case Offset = "offset";
 
-    public function createFilter(array $payload): Filter
+    public function createFilter(GetPlayerStatisticsDto $data): Filter
     {
         return match ($this) {
-            self::PlayerId => new PlayerIdFilter($payload),
-            self::TeamId => new TeamIdFilter($payload),
-            self::PlayerPosition => new PlayerPositionFilter($payload),
-            self::Limit => new LimitFilter($payload),
-            self::Offset => new OffsetFilter($payload),
+            self::PlayerId => new PlayerIdFilter($data),
+            self::TeamId => new TeamIdFilter($data),
+            self::PlayerPosition => new PlayerPositionFilter($data),
+            self::Limit => new LimitFilter($data),
+            self::Offset => new OffsetFilter($data),
         };
     }
 }

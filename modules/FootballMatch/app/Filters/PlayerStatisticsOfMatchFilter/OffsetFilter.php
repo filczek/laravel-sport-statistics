@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Modules\FootballMatch\Filters\PlayerStatisticsOfMatchFilter;
 
 use Closure;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Arr;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 final class OffsetFilter extends Filter
 {
-    public function handle(Builder $query, Closure $next): Builder
+    public function handle(QueryBuilder $query, Closure $next): QueryBuilder
     {
-        $offset = Arr::get($this->payload, 'offset');
+        $offset = $this->payload->offset;
 
         if (null !== $offset) {
             $query->offset($offset);
